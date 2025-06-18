@@ -19,8 +19,8 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait-primary',
-        scope: '/text-editor-pwa/',
-        start_url: '/text-editor-pwa/',
+        scope: '/005-023/',
+        start_url: '/005-023/',
         lang: 'ru',
         icons: [
           {
