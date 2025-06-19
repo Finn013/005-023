@@ -500,6 +500,115 @@ function App() {
     return null;
   };
 
+  const getSelectedTableCell = (): HTMLTableCellElement | null => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return null;
+    
+    const range = selection.getRangeAt(0);
+    let element = range.startContainer;
+    
+    // Если это текстовый узел, получаем родительский элемент
+    if (element.nodeType === Node.TEXT_NODE) {
+      element = element.parentElement!;
+    }
+    
+    return findTableCell(element as HTMLElement);
+  };
+
+  // Функции для кнопок в RibbonMenu
+  const handleAddRow = () => {
+    const cell = getSelectedTableCell();
+    if (!cell) {
+      alert('Выберите ячейку в таблице для добавления строки');
+      return;
+    }
+    
+    const row = cell.parentElement as HTMLTableRowElement;
+    const table = row.parentElement as HTMLTableElement;
+    const rowIndex = Array.from(table.rows).indexOf(row);
+    
+    // Добавляем строку ниже текущей
+    const newRow = table.insertRow(rowIndex + 1);
+    for (let i = 0; i < row.cells.length; i++) {
+      const newCell = newRow.insertCell();
+      newCell.style.cssText = 'padding: 8px; border: 1px solid #ccc;';
+      newCell.innerHTML = '&nbsp;';
+    }
+    
+    // Обновляем содержимое
+    currentContentRef.current = editorRef.current!.innerHTML;
+  };
+
+  const handleDeleteRow = () => {
+    const cell = getSelectedTableCell();
+    if (!cell) {
+      alert('Выберите ячейку в таблице для удаления строки');
+      return;
+    }
+    
+    const row = cell.parentElement as HTMLTableRowElement;
+    const table = row.parentElement as HTMLTableElement;
+    
+    if (table.rows.length <= 1) {
+      alert('Нельзя удалить последнюю строку таблицы');
+      return;
+    }
+    
+    const rowIndex = Array.from(table.rows).indexOf(row);
+    table.deleteRow(rowIndex);
+    
+    // Обновляем содержимое
+    currentContentRef.current = editorRef.current!.innerHTML;
+  };
+
+  const handleAddColumn = () => {
+    const cell = getSelectedTableCell();
+    if (!cell) {
+      alert('Выберите ячейку в таблице для добавления столбца');
+      return;
+    }
+    
+    const row = cell.parentElement as HTMLTableRowElement;
+    const table = row.parentElement as HTMLTableElement;
+    const cellIndex = Array.from(row.cells).indexOf(cell);
+    
+    // Добавляем столбец справа от текущего
+    for (let i = 0; i < table.rows.length; i++) {
+      const newCell = table.rows[i].insertCell(cellIndex + 1);
+      newCell.style.cssText = 'padding: 8px; border: 1px solid #ccc;';
+      newCell.innerHTML = '&nbsp;';
+    }
+    
+    // Обновляем содержимое
+    currentContentRef.current = editorRef.current!.innerHTML;
+  };
+
+  const handleDeleteColumn = () => {
+    const cell = getSelectedTableCell();
+    if (!cell) {
+      alert('Выберите ячейку в таблице для удаления столбца');
+      return;
+    }
+    
+    const row = cell.parentElement as HTMLTableRowElement;
+    const table = row.parentElement as HTMLTableElement;
+    
+    if (row.cells.length <= 1) {
+      alert('Нельзя удалить последний столбец таблицы');
+      return;
+    }
+    
+    const cellIndex = Array.from(row.cells).indexOf(cell);
+    
+    // Удаляем столбец во всех строках
+    for (let i = 0; i < table.rows.length; i++) {
+      table.rows[i].deleteCell(cellIndex);
+    }
+    
+    // Обновляем содержимое
+    currentContentRef.current = editorRef.current!.innerHTML;
+  };
+
   const handleTableAction = (action: string) => {
     if (!contextMenu.targetCell) return;
 
@@ -637,6 +746,10 @@ function App() {
         onInsertLink={handleInsertLink}
         onInsertImage={handleInsertImage}
         onInsertLocalImage={handleInsertLocalImage}
+        onAddRow={handleAddRow}
+        onDeleteRow={handleDeleteRow}
+        onAddColumn={handleAddColumn}
+        onDeleteColumn={handleDeleteColumn}
       />
       
       <div className="flex-1 bg-white">
