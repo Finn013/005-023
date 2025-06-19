@@ -1,5 +1,6 @@
 {
-  "name": "text-editor-pwa",
+"homepage": "https://finn013.github.io/005-023",  
+"name": "text-editor-pwa",
   "private": true,
   "version": "1.0.0",
   "type": "module",
