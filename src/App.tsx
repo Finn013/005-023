@@ -610,13 +610,13 @@ function App() {
   };
 
   const handleTableAction = (action: string) => {
-    if (!contextMenu.targetCell) return;
-
     const cell = contextMenu.targetCell;
+    if (!cell) return;
+
     const row = cell.parentElement as HTMLTableRowElement;
     const table = row.parentElement as HTMLTableElement;
-    const cellIndex = Array.from(row.cells).indexOf(cell);
     const rowIndex = Array.from(table.rows).indexOf(row);
+    const cellIndex = Array.from(row.cells).indexOf(cell);
 
     switch (action) {
       case 'addRowAbove':
@@ -640,6 +640,8 @@ function App() {
       case 'deleteRow':
         if (table.rows.length > 1) {
           table.deleteRow(rowIndex);
+        } else {
+          alert('Нельзя удалить последнюю строку таблицы');
         }
         break;
 
@@ -664,6 +666,8 @@ function App() {
           for (let i = 0; i < table.rows.length; i++) {
             table.rows[i].deleteCell(cellIndex);
           }
+        } else {
+          alert('Нельзя удалить последний столбец таблицы');
         }
         break;
     }
@@ -672,14 +676,12 @@ function App() {
     currentContentRef.current = editorRef.current!.innerHTML;
   };
 
-  // Обработка изменений в редакторе - теперь только обновляет ref
   const handleEditorChange = () => {
     if (editorRef.current) {
       currentContentRef.current = editorRef.current.innerHTML;
     }
   };
 
-  // Обработка правого клика на таблице
   const handleContextMenu = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
     const cell = findTableCell(target);
@@ -694,10 +696,9 @@ function App() {
     }
   };
 
-  // Обработка горячих клавиш
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.ctrlKey || e.metaKey) {
-      switch (e.key) {
+      switch (e.key.toLowerCase()) {
         case 's':
           e.preventDefault();
           handleSave();
@@ -817,7 +818,7 @@ function App() {
         title="Вставить изображение"
         fields={[
           { label: 'URL изображения:', defaultValue: '', key: 'url' },
-          { label: 'Описание:', defaultValue: 'Изображение', key: 'alt' }
+          { label: 'Описание (alt):', defaultValue: '', key: 'alt' }
         ]}
         onSubmit={insertImage}
       />
